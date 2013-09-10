@@ -3,24 +3,22 @@ using System.IO;
 using Microsoft.Kinect;
 using System.Runtime.Serialization.Formatters.Binary;
 
-using Common.Logging;
-
 namespace Kinect.Toolbox.Record {
   class SkeletonRecorder {
-    static readonly ILog Log = LogManager.GetCurrentClassLogger();
     DateTime referenceTime;
     readonly BinaryWriter writer;
 
-    internal SkeletonRecorder(BinaryWriter writer, DateTime refTime) {
+    internal SkeletonRecorder(BinaryWriter writer) {
       this.writer = writer;
-      referenceTime = refTime;
+      referenceTime = DateTime.Now;
     }
 
-    public void Record(SkeletonFrame frame, DateTime time) {
+    public void Record(SkeletonFrame frame) {
       // Header
       writer.Write((int)KinectRecordOptions.Skeletons);
 
       // Data
+      var time = DateTime.Now;
       TimeSpan timeSpan = time.Subtract(referenceTime);
       referenceTime = time;
       writer.Write((long)timeSpan.TotalMilliseconds);

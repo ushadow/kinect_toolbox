@@ -7,17 +7,18 @@ namespace Kinect.Toolbox.Record {
     DateTime referenceTime;
     readonly BinaryWriter writer;
 
-    internal ColorRecorder(BinaryWriter writer, DateTime referenceTime) {
+    internal ColorRecorder(BinaryWriter writer) {
       this.writer = writer;
 
-      this.referenceTime = referenceTime;
+      this.referenceTime = DateTime.Now;
     }
 
-    public void Record(ColorImageFrame frame, DateTime time) {
+    public void Record(ColorImageFrame frame) {
       // Header
       writer.Write((int)KinectRecordOptions.Color);
 
       // Data
+      var time = DateTime.Now;
       TimeSpan timeSpan = time.Subtract(referenceTime);
       referenceTime = time;
       writer.Write((long)timeSpan.TotalMilliseconds);

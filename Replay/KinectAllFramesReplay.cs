@@ -7,6 +7,9 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace Kinect.Toolbox.Record {
+  /// <summary>
+  /// Replays frames from all three streams synchronously.
+  /// </summary>
   public class KinectAllFramesReplay : IDisposable {
 
     public event EventHandler<ReplayAllFramesReadyEventArgs> AllFramesReady;

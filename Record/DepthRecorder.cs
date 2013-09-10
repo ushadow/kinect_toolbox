@@ -2,24 +2,22 @@
 using System.IO;
 using Microsoft.Kinect;
 
-using Common.Logging;
-
 namespace Kinect.Toolbox.Record {
   class DepthRecorder {
-    static readonly ILog Log = LogManager.GetCurrentClassLogger();
     DateTime referenceTime;
     readonly BinaryWriter writer;
 
-    internal DepthRecorder(BinaryWriter writer, DateTime refTime) {
+    internal DepthRecorder(BinaryWriter writer) {
       this.writer = writer;
-      referenceTime = refTime;
+      referenceTime = DateTime.Now;
     }
 
-    public void Record(DepthImageFrame frame, DateTime time) {
+    public void Record(DepthImageFrame frame) {
       // Header
       writer.Write((int)KinectRecordOptions.Depth);
 
       // Data
+      var time = DateTime.Now;
       TimeSpan timeSpan = time.Subtract(referenceTime);
       referenceTime = time;
       writer.Write((long)timeSpan.TotalMilliseconds);

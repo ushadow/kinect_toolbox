@@ -4,11 +4,8 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-using Common.Logging;
-
 namespace Kinect.Toolbox.Record {
   class ReplaySystem<T> where T : ReplayFrame, new() {
-    static readonly ILog Log = LogManager.GetCurrentClassLogger();    
     internal event Action<T> FrameReady;
     readonly List<T> frames = new List<T>();
 

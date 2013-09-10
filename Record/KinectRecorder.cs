@@ -25,16 +25,14 @@ namespace Kinect.Toolbox.Record {
 
       writer.Write((int)Options);
 
-      var refTime = DateTime.Now;
-
       if ((Options & KinectRecordOptions.Color) != 0) {
-        colorRecoder = new ColorRecorder(writer, refTime);
+        colorRecoder = new ColorRecorder(writer);
       }
       if ((Options & KinectRecordOptions.Depth) != 0) {
-        depthRecorder = new DepthRecorder(writer, refTime);
+        depthRecorder = new DepthRecorder(writer);
       }
       if ((Options & KinectRecordOptions.Skeletons) != 0) {
-        skeletonRecorder = new SkeletonRecorder(writer, refTime);
+        skeletonRecorder = new SkeletonRecorder(writer);
       }
 
       previousFlushDate = DateTime.Now;
@@ -47,45 +45,45 @@ namespace Kinect.Toolbox.Record {
     /// <param name="df"></param>
     /// <param name="cf"></param>
     /// <param name="time"></param>
-    public void Record(SkeletonFrame sf, DepthImageFrame df, ColorImageFrame cf, DateTime time) {
+    public void Record(SkeletonFrame sf, DepthImageFrame df, ColorImageFrame cf) {
       if (sf != null)
-        Record(sf, time);
+        Record(sf);
       if (df != null)
-        Record(df, time);
+        Record(df);
       if (cf != null)
-        Record(cf, time);
+        Record(cf);
     }
 
-    public void Record(SkeletonFrame frame, DateTime time) {
+    public void Record(SkeletonFrame frame) {
       if (writer == null)
         throw new Exception("This recorder is stopped");
 
       if (skeletonRecorder == null)
         throw new Exception("Skeleton recording is not actived on this KinectRecorder");
 
-      skeletonRecorder.Record(frame, time);
+      skeletonRecorder.Record(frame);
       Flush();
     }
 
-    public void Record(ColorImageFrame frame, DateTime time) {
+    public void Record(ColorImageFrame frame) {
       if (writer == null)
         throw new Exception("This recorder is stopped");
 
       if (colorRecoder == null)
         throw new Exception("Color recording is not actived on this KinectRecorder");
 
-      colorRecoder.Record(frame, time);
+      colorRecoder.Record(frame);
       Flush();
     }
 
-    public void Record(DepthImageFrame frame, DateTime time) {
+    public void Record(DepthImageFrame frame) {
       if (writer == null)
         throw new Exception("This recorder is stopped");
 
       if (depthRecorder == null)
         throw new Exception("Depth recording is not actived on this KinectRecorder");
 
-      depthRecorder.Record(frame, time);
+      depthRecorder.Record(frame);
       Flush();
     }
 
