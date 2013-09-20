@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Threading;
 
 namespace Kinect.Toolbox.Record {
   /// <summary>
@@ -13,12 +15,14 @@ namespace Kinect.Toolbox.Record {
   public class KinectAllFramesReplay : IDisposable {
 
     public event EventHandler<ReplayAllFramesReadyEventArgs> AllFramesReady;
-
-    Stream stream;
-    BinaryReader reader;
-    readonly SynchronizationContext synchronizationContext;
-
-    ReplaySystem<ReplayAllFrames> allFramesReplay = new ReplaySystem<ReplayAllFrames>();
+    public int FrameCount {
+      get {
+        if (allFramesReplay == null)
+          return 0;
+        else
+          return allFramesReplay.Frames.Count;
+      }
+    }
 
     public bool Started { get; internal set; }
 
@@ -31,6 +35,12 @@ namespace Kinect.Toolbox.Record {
       }
     }
 
+    Stream stream;
+    BinaryReader reader;
+    readonly SynchronizationContext synchronizationContext;
+
+    ReplaySystem<ReplayAllFrames> allFramesReplay = new ReplaySystem<ReplayAllFrames>();
+
     public KinectAllFramesReplay(Stream stream) {
       this.stream = stream;
       reader = new BinaryReader(stream);
@@ -41,18 +51,24 @@ namespace Kinect.Toolbox.Record {
       }
     }
 
-    public void Start() {
+    public ReplayAllFrames FrameAt(int index) {
+      if (index < FrameCount)
+        return allFramesReplay.Frames[index];
+      return null;
+    }
+
+    public void Start(DispatcherTimer timer = null) {
       if (Started)
         throw new Exception("KinectReplay already started");
 
       Started = true;
 
       if (allFramesReplay != null) {
-        allFramesReplay.Start();
         allFramesReplay.FrameReady += frame => synchronizationContext.Send(state => {
           if (AllFramesReady != null)
             AllFramesReady(this, new ReplayAllFramesReadyEventArgs { AllFrames = frame });
         }, null);
+        allFramesReplay.Start(timer);
       }
     }
 
