@@ -25,12 +25,12 @@ namespace Kinect.Toolbox {
       return (r << 16) + (g << 8) + b;
     }
 
-    public void Update(ReplayColorImageFrame frame, bool display = true) {
+    public void Update(ReplayColorImageFrame frame, bool updateDisplay = true) {
       PixelData = new byte[frame.PixelDataLength];
  
       frame.CopyPixelDataTo(PixelData);
 
-      if (!display)
+      if (!updateDisplay)
         return;
 
       if (Bitmap == null) {

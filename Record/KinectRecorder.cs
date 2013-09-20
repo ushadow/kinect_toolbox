@@ -19,16 +19,13 @@ namespace Kinect.Toolbox.Record {
     public KinectRecordOptions Options { get; set; }
 
     // Ctr
-    public KinectRecorder(KinectRecordOptions options, ICollection<byte> kinectParams, 
-        Stream stream) {
+    public KinectRecorder(KinectRecordOptions options, Stream stream) {
       Options = options;
 
       recordStream = stream;
       writer = new BinaryWriter(recordStream);
 
       writer.Write((int)Options);
-      //var formatter = new BinaryFormatter();
-      //formatter.Serialize(writer.BaseStream, kinectParams);
 
       if ((Options & KinectRecordOptions.Color) != 0) {
         colorRecoder = new ColorRecorder(writer);
