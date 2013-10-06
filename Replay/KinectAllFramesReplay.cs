@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Kinect;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -14,7 +15,12 @@ namespace Kinect.Toolbox.Record {
   /// </summary>
   public class KinectAllFramesReplay : IDisposable {
 
+    readonly SynchronizationContext synchronizationContext;
+
     public event EventHandler<ReplayAllFramesReadyEventArgs> AllFramesReady;
+
+    public CoordinateMapper CoordinateMapper { get; private set; }
+
     public int FrameCount {
       get {
         if (allFramesReplay == null)
@@ -37,13 +43,14 @@ namespace Kinect.Toolbox.Record {
 
     Stream stream;
     BinaryReader reader;
-    readonly SynchronizationContext synchronizationContext;
 
     ReplaySystem<ReplayAllFrames> allFramesReplay = new ReplaySystem<ReplayAllFrames>();
 
     public KinectAllFramesReplay(Stream stream) {
       this.stream = stream;
       reader = new BinaryReader(stream);
+
+      CoordinateMapper = ReadCoordinateMapperParams();
       synchronizationContext = SynchronizationContext.Current;
       reader.ReadInt32();
       while (reader.BaseStream.Position != reader.BaseStream.Length) {
@@ -86,14 +93,16 @@ namespace Kinect.Toolbox.Record {
       allFramesReplay = null;
 
       if (reader != null) {
-        reader.Dispose();
+        reader.Close();
         reader = null;
-      }
-
-      if (stream != null) {
-        stream.Dispose();
         stream = null;
       }
+    }
+
+    CoordinateMapper ReadCoordinateMapperParams() {
+      int count = reader.ReadInt32();
+      var coordinateParams = reader.ReadBytes(count);
+      return new CoordinateMapper(coordinateParams);
     }
   }
 }

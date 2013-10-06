@@ -1,8 +1,9 @@
 ﻿using System;
 using System.IO;
-using Microsoft.Kinect;
 using System.Collections.Generic;
 using System.Runtime.Serialization.Formatters.Binary;
+
+using Microsoft.Kinect;
 
 namespace Kinect.Toolbox.Record {
   public class KinectRecorder {
@@ -19,11 +20,20 @@ namespace Kinect.Toolbox.Record {
     public KinectRecordOptions Options { get; set; }
 
     // Ctr
-    public KinectRecorder(KinectRecordOptions options, Stream stream) {
+    public KinectRecorder(KinectRecordOptions options, CoordinateMapper coordianteMapper,
+                          Stream stream) {
       Options = options;
 
       recordStream = stream;
       writer = new BinaryWriter(recordStream);
+
+      var coordParams = coordianteMapper.ColorToDepthRelationalParameters;
+      int count = coordParams.Count;
+      Console.WriteLine(count);
+      writer.Write((int)count);
+      byte[] array = new byte[count];
+      coordParams.CopyTo(array, 0);
+      writer.Write(array);
 
       writer.Write((int)Options);
 
@@ -98,14 +108,16 @@ namespace Kinect.Toolbox.Record {
       }
     }
 
-    public void Stop() {
+    /// <summary>
+    /// Closes the recording stream.
+    /// </summary>
+    public void Close() {
       if (writer == null)
         throw new Exception("This recorder is already stopped");
 
       writer.Close();
-      writer.Dispose();
 
-      recordStream.Dispose();
+      recordStream.Close();
       recordStream = null;
     }
   }
