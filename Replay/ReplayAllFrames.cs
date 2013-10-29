@@ -50,6 +50,7 @@ namespace Kinect.Toolbox.Record {
           case KinectRecordOptions.Depth:
             DepthImageFrame.CreateFromReader(reader);
             TimeStamp = DepthImageFrame.TimeStamp;
+            FrameNumber = DepthImageFrame.FrameNumber;
             break;
           case KinectRecordOptions.Color:
             ColorImageFrame.CreateFromReader(reader);

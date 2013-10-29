@@ -1,12 +1,6 @@
-﻿using Microsoft.Kinect;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.IO;
-using System.Linq;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Threading;
 
 namespace Kinect.Toolbox.Record {
@@ -19,7 +13,7 @@ namespace Kinect.Toolbox.Record {
 
     public event EventHandler<ReplayAllFramesReadyEventArgs> AllFramesReady;
 
-    public CoordinateMapper CoordinateMapper { get; private set; }
+    public Byte[] KinectParams { get; private set; }
 
     public int FrameCount {
       get {
@@ -50,7 +44,7 @@ namespace Kinect.Toolbox.Record {
       this.stream = stream;
       reader = new BinaryReader(stream);
 
-      CoordinateMapper = ReadCoordinateMapperParams();
+      KinectParams = ReadCoordinateMapperParams();
       synchronizationContext = SynchronizationContext.Current;
       reader.ReadInt32();
       while (reader.BaseStream.Position != reader.BaseStream.Length) {
@@ -99,10 +93,9 @@ namespace Kinect.Toolbox.Record {
       }
     }
 
-    CoordinateMapper ReadCoordinateMapperParams() {
+    Byte[] ReadCoordinateMapperParams() {
       int count = reader.ReadInt32();
-      var coordinateParams = reader.ReadBytes(count);
-      return new CoordinateMapper(coordinateParams);
+      return reader.ReadBytes(count);
     }
   }
 }
