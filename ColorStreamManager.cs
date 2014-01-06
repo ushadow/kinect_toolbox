@@ -8,6 +8,10 @@ using Kinect.Toolbox.Record;
 namespace Kinect.Toolbox {
   public class ColorStreamManager : Notifier, IStreamManager {
     public WriteableBitmap Bitmap { get; private set; }
+
+    /// <summary>
+    /// Each pixel has 4 channels.
+    /// </summary>
     public byte[] PixelData { get; private set; }
     int[] yuvTemp;
 

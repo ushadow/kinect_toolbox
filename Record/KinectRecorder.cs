@@ -1,9 +1,8 @@
 ﻿using System;
 using System.IO;
-using System.Collections.Generic;
-using System.Runtime.Serialization.Formatters.Binary;
 
 using Microsoft.Kinect;
+using System.Collections.ObjectModel;
 
 namespace Kinect.Toolbox.Record {
   public class KinectRecorder {
@@ -20,20 +19,21 @@ namespace Kinect.Toolbox.Record {
     public KinectRecordOptions Options { get; set; }
 
     // Ctr
-    public KinectRecorder(KinectRecordOptions options, CoordinateMapper coordianteMapper,
-                          Stream stream) {
+    public KinectRecorder(KinectRecordOptions options, CoordinateMapper mapper,
+        float colorFocalLength, float depthFocalLength, Stream stream) {
       Options = options;
 
       recordStream = stream;
       writer = new BinaryWriter(recordStream);
 
-      var coordParams = coordianteMapper.ColorToDepthRelationalParameters;
+      var coordParams = mapper.ColorToDepthRelationalParameters;
       int count = coordParams.Count;
-      Console.WriteLine(count);
-      writer.Write((int)count);
       byte[] array = new byte[count];
       coordParams.CopyTo(array, 0);
+      writer.Write(count);
       writer.Write(array);
+      writer.Write(colorFocalLength);
+      writer.Write(depthFocalLength);
 
       writer.Write((int)Options);
 
@@ -58,12 +58,14 @@ namespace Kinect.Toolbox.Record {
     /// <param name="cf"></param>
     /// <param name="time"></param>
     public void Record(SkeletonFrame sf, DepthImageFrame df, ColorImageFrame cf) {
-      if (sf != null)
-        Record(sf);
-      if (df != null)
-        Record(df);
-      if (cf != null)
-        Record(cf);
+      lock (this) {
+        if (sf != null)
+          Record(sf);
+        if (df != null)
+          Record(df);
+        if (cf != null)
+          Record(cf);
+      }
     }
 
     public void Record(SkeletonFrame frame) {
@@ -115,10 +117,11 @@ namespace Kinect.Toolbox.Record {
       if (writer == null)
         throw new Exception("This recorder is already stopped");
 
-      writer.Close();
-
-      recordStream.Close();
-      recordStream = null;
+      lock (this) {
+        writer.Close();
+        recordStream.Close();
+        recordStream = null;
+      }
     }
   }
 }

@@ -5,7 +5,8 @@ using System.Windows.Threading;
 
 namespace Kinect.Toolbox.Record {
   /// <summary>
-  /// Replays frames from all three streams synchronously.
+  /// Replays frames from all three streams synchronously. The recording must record all three
+  /// streams.
   /// </summary>
   public class KinectAllFramesReplay : IDisposable {
 
@@ -14,6 +15,8 @@ namespace Kinect.Toolbox.Record {
     public event EventHandler<ReplayAllFramesReadyEventArgs> AllFramesReady;
 
     public Byte[] KinectParams { get; private set; }
+    public float ColorNominalFocalLengthInPixels { get; private set; }
+    public float DepthNominalFocalLengthInPixels { get; private set; }
 
     public int FrameCount {
       get {
@@ -41,12 +44,22 @@ namespace Kinect.Toolbox.Record {
     ReplaySystem<ReplayAllFrames> allFramesReplay = new ReplaySystem<ReplayAllFrames>();
 
     public KinectAllFramesReplay(Stream stream) {
+      synchronizationContext = SynchronizationContext.Current;
+      
       this.stream = stream;
       reader = new BinaryReader(stream);
 
       KinectParams = ReadCoordinateMapperParams();
-      synchronizationContext = SynchronizationContext.Current;
-      reader.ReadInt32();
+      ColorNominalFocalLengthInPixels = reader.ReadSingle();
+      DepthNominalFocalLengthInPixels = reader.ReadSingle();
+      
+      var options = (KinectRecordOptions) reader.ReadInt32();
+
+      if (!IsValidOptions(options)) {
+        throw new Exception(String.Format("Not all streams are recorded. Record option = {0}", 
+                                          options));
+      }
+
       while (reader.BaseStream.Position != reader.BaseStream.Length) {
         allFramesReplay.AddFrame(reader);
       }
@@ -96,6 +109,11 @@ namespace Kinect.Toolbox.Record {
     Byte[] ReadCoordinateMapperParams() {
       int count = reader.ReadInt32();
       return reader.ReadBytes(count);
+    }
+
+    bool IsValidOptions(KinectRecordOptions options) {
+      return options.Equals(KinectRecordOptions.Color | KinectRecordOptions.Depth |
+                            KinectRecordOptions.Skeletons);
     }
   }
 }
