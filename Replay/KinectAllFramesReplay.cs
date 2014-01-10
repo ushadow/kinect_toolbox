@@ -14,18 +14,8 @@ namespace Kinect.Toolbox.Record {
 
     public event EventHandler<ReplayAllFramesReadyEventArgs> AllFramesReady;
 
-    public Byte[] KinectParams { get; private set; }
     public float ColorNominalFocalLengthInPixels { get; private set; }
     public float DepthNominalFocalLengthInPixels { get; private set; }
-
-    public int FrameCount {
-      get {
-        if (allFramesReplay == null)
-          return 0;
-        else
-          return allFramesReplay.Frames.Count;
-      }
-    }
 
     public bool Started { get; internal set; }
 
@@ -40,23 +30,24 @@ namespace Kinect.Toolbox.Record {
 
     Stream stream;
     BinaryReader reader;
+    Byte[] kinectParams;
 
     ReplaySystem<ReplayAllFrames> allFramesReplay = new ReplaySystem<ReplayAllFrames>();
 
     public KinectAllFramesReplay(Stream stream) {
       synchronizationContext = SynchronizationContext.Current;
-      
+
       this.stream = stream;
       reader = new BinaryReader(stream);
 
-      KinectParams = ReadCoordinateMapperParams();
+      kinectParams = ReadCoordinateMapperParams();
       ColorNominalFocalLengthInPixels = reader.ReadSingle();
       DepthNominalFocalLengthInPixels = reader.ReadSingle();
-      
-      var options = (KinectRecordOptions) reader.ReadInt32();
+
+      var options = (KinectRecordOptions)reader.ReadInt32();
 
       if (!IsValidOptions(options)) {
-        throw new Exception(String.Format("Not all streams are recorded. Record option = {0}", 
+        throw new Exception(String.Format("Not all streams are recorded. Record option = {0}",
                                           options));
       }
 
@@ -65,9 +56,36 @@ namespace Kinect.Toolbox.Record {
       }
     }
 
+    public int GetFramesCount() {
+      if (allFramesReplay == null)
+        return 0;
+      else
+        return allFramesReplay.Frames.Count;
+    }
+
+    public Byte[] GetKinectParams() { return kinectParams; }
+
     public ReplayAllFrames FrameAt(int index) {
-      if (index < FrameCount)
+      if (index < GetFramesCount())
         return allFramesReplay.Frames[index];
+      return null;
+    }
+
+    public ReplayDepthImageFrame GetDepthFrame(int i) {
+      if (i < GetFramesCount())
+        return allFramesReplay.Frames[i].DepthImageFrame;
+      return null;
+    }
+
+    public ReplayColorImageFrame GetColorFrame(int i) {
+      if (i < GetFramesCount())
+        return allFramesReplay.Frames[i].ColorImageFrame;
+      return null;
+    }
+
+    public ReplaySkeletonFrame GetSkeletonFrame(int i) {
+      if (i < GetFramesCount())
+        return allFramesReplay.Frames[i].SkeletonFrame;
       return null;
     }
 
