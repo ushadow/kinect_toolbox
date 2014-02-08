@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.IO;
 using Microsoft.Kinect;
+using System;
 
 namespace Kinect.Toolbox
 {
@@ -33,9 +34,9 @@ namespace Kinect.Toolbox
             learningMachine = new LearningMachine(kbStream);
         }
 
-        public override void Add(SkeletonPoint position, KinectSensor sensor)
+        public override void Add(SkeletonPoint position, KinectSensor sensor, Object format)
         {
-            base.Add(position, sensor);
+            base.Add(position, sensor, format);
 
             if (path != null)
             {

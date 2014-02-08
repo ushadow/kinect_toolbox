@@ -28,19 +28,21 @@ namespace Kinect.Toolbox.Record {
       }
     }
 
-    Stream stream;
     BinaryReader reader;
     Byte[] kinectParams;
 
     ReplaySystem<ReplayAllFrames> allFramesReplay = new ReplaySystem<ReplayAllFrames>();
 
+    /// <summary>
+    /// Creates a replayer from stream data. Disposes the stream after reading all the data.
+    /// </summary>
+    /// <param name="stream"></param>
     public KinectAllFramesReplay(Stream stream) {
       synchronizationContext = SynchronizationContext.Current;
 
-      this.stream = stream;
       reader = new BinaryReader(stream);
 
-      kinectParams = ReadCoordinateMapperParams();
+      kinectParams = ReadCoordinateMapperParams(reader);
       ColorNominalFocalLengthInPixels = reader.ReadSingle();
       DepthNominalFocalLengthInPixels = reader.ReadSingle();
 
@@ -51,6 +53,7 @@ namespace Kinect.Toolbox.Record {
                                           options));
       }
 
+      // Reads all the frames.
       while (reader.BaseStream.Position != reader.BaseStream.Length) {
         allFramesReplay.AddFrame(reader);
       }
@@ -114,17 +117,14 @@ namespace Kinect.Toolbox.Record {
 
     public void Dispose() {
       Stop();
-
-      allFramesReplay = null;
-
       if (reader != null) {
-        reader.Close();
+        reader.Dispose();
         reader = null;
-        stream = null;
       }
+      allFramesReplay = null;
     }
 
-    Byte[] ReadCoordinateMapperParams() {
+    Byte[] ReadCoordinateMapperParams(BinaryReader reader) {
       int count = reader.ReadInt32();
       return reader.ReadBytes(count);
     }

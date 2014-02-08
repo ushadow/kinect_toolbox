@@ -119,7 +119,7 @@ namespace Kinect.Toolbox.Record {
 
       lock (this) {
         writer.Close();
-        recordStream.Close();
+        recordStream.Close(); // Calls Dispose.
         recordStream = null;
       }
     }

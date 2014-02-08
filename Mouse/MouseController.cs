@@ -185,7 +185,7 @@ namespace Kinect.Toolbox
             Vector2 currentTrend;
             float distance;
 
-            Vector2 baseJointPosition = Tools.Convert(sensor, joint.Position);
+            Vector2 baseJointPosition = Tools.Convert(sensor.CoordinateMapper, joint.Position);
             Vector2 prevFilteredJointPosition = savedFilteredJointPosition;
             Vector2 previousTrend = savedTrend;
             Vector2 previousBaseJointPosition = savedBasePosition;

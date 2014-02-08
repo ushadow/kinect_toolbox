@@ -30,6 +30,8 @@ namespace Kinect.Toolbox.Record {
 
     }
 
+    public int GetFrameNumber() { return FrameNumber; }
+
     internal override void CreateFromReader(BinaryReader reader) {
       TimeStamp = reader.ReadInt64();
       BytesPerPixel = reader.ReadInt32();

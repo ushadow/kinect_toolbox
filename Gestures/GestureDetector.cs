@@ -50,8 +50,7 @@ namespace Kinect.Toolbox
             get { return windowSize; }
         }
 
-        public virtual void Add(SkeletonPoint position, KinectSensor sensor)
-        {
+        public virtual void Add(SkeletonPoint position, KinectSensor sensor, Object format) {
             Entry newEntry = new Entry {Position = position.ToVector3(), Time = DateTime.Now};
             Entries.Add(newEntry);
 
@@ -69,7 +68,7 @@ namespace Kinect.Toolbox
                     StrokeLineJoin = PenLineJoin.Round
                 };
 
-                Vector2 vector2 = Tools.Convert(sensor, position);
+                Vector2 vector2 = Tools.Convert(sensor.CoordinateMapper, position, format);
 
                 float x = (float)(vector2.X * DisplayCanvas.ActualWidth);
                 float y = (float)(vector2.Y * DisplayCanvas.ActualHeight);
