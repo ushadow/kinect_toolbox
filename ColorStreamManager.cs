@@ -29,6 +29,11 @@ namespace Kinect.Toolbox {
       return (r << 16) + (g << 8) + b;
     }
 
+    /// <summary>
+    /// Updates pixel data and if necessary bitmap as well.
+    /// </summary>
+    /// <param name="frame"></param>
+    /// <param name="updateDisplay">Updates the bitmap if true.</param>
     public void Update(ReplayColorImageFrame frame, bool updateDisplay = true) {
       PixelData = new byte[frame.PixelDataLength];
  
@@ -62,8 +67,9 @@ namespace Kinect.Toolbox {
         }
 
         Bitmap.WritePixels(dirtyRect, yuvTemp, stride, 0);
-      } else
+      } else {
         Bitmap.WritePixels(dirtyRect, PixelData, stride, 0);
+      }
 
       RaisePropertyChanged(() => Bitmap);
     }
